@@ -36,7 +36,6 @@ public class CreateUser {
         private String username;
         private String phoneNumber;
         private Gender gender;
-        private Role role;
 
         public static CreateUser.Response from(UserDto userDto) {
             return Response.builder()
@@ -45,7 +44,6 @@ public class CreateUser {
                     .username(userDto.getUsername())
                     .phoneNumber(userDto.getPhoneNumber())
                     .gender(userDto.getGender())
-                    .role(userDto.getRole())
                     .build();
         }
     }

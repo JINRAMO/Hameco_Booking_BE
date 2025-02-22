@@ -1,12 +1,17 @@
 package com.example.hamecobooking.service.login;
 
+import com.example.hamecobooking.dto.login.LoginDto;
+import com.example.hamecobooking.dto.login.SignIn;
+import com.example.hamecobooking.dto.login.SignUp;
 import com.example.hamecobooking.dto.user.CreateUser;
 import com.example.hamecobooking.dto.user.GetUser;
 import com.example.hamecobooking.dto.user.UserDto;
 import com.example.hamecobooking.entity.DesignerEntity;
+import com.example.hamecobooking.entity.ManagerEntity;
 import com.example.hamecobooking.entity.UserEntity;
 import com.example.hamecobooking.enums.Role;
 import com.example.hamecobooking.repository.DesignerRepository;
+import com.example.hamecobooking.repository.ManagerRepository;
 import com.example.hamecobooking.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,55 +21,80 @@ import java.time.LocalDateTime;
 public class SignService {
     private final UserRepository userRepository;
     private final DesignerRepository designerRepository;
-    public SignService(UserRepository userRepository, DesignerRepository designerRepository) {
+    private final ManagerRepository managerRepository;
+    public SignService(UserRepository userRepository, DesignerRepository designerRepository, ManagerRepository managerRepository) {
         this.userRepository = userRepository;
         this.designerRepository = designerRepository;
+        this.managerRepository = managerRepository;
     }
 
-    public UserDto signUp(CreateUser.Request request) {
+    public LoginDto signUp(SignUp.Request request) {
         if (request.getRole() == Role.DESIGNER) {
-            // 디자이너 계정 생성
             DesignerEntity designer = designerRepository.save(
                     DesignerEntity.builder()
                             .email(request.getEmail())
                             .password(request.getPassword())
-                            .username(request.getUsername())
+                            .username(request.getName())
                             .phoneNumber(request.getPhoneNumber())
-                            .role(Role.DESIGNER)
                             .gender(request.getGender())
                             .createdAt(LocalDateTime.now())
                             .careerYears(0)
                             .build()
             );
-            return UserDto.fromDesignerEntity(designer);  // 디자이너 DTO 변환
-        } else {
-            // 일반 사용자 계정 생성
+            return LoginDto.fromDesignerEntity(designer);
+        }
+
+        if (request.getRole() == Role.USER) {
             UserEntity user = userRepository.save(
                     UserEntity.builder()
                             .email(request.getEmail())
                             .password(request.getPassword())
-                            .username(request.getUsername())
+                            .username(request.getName())
                             .phoneNumber(request.getPhoneNumber())
                             .gender(request.getGender())
-                            .role(Role.USER)
                             .createdAt(LocalDateTime.now())
                             .build()
             );
-            return UserDto.fromEntity(user);  // 일반 사용자 DTO 변환
+            return LoginDto.fromUserEntity(user);
         }
+
+        if (request.getRole() == Role.MANAGER) {
+            ManagerEntity manager = managerRepository.save(
+                    ManagerEntity.builder()
+                            .email(request.getEmail())
+                            .password(request.getPassword())
+                            .username(request.getName())
+                            .phoneNumber(request.getPhoneNumber())
+                            .createdAt(LocalDateTime.now())
+                            .build()
+            );
+            return LoginDto.fromManagerEntity(manager);
+        }
+
+        throw new RuntimeException("Role not found");
     }
 
-    public UserDto signIn(GetUser.Request request) {
+
+    public LoginDto signIn(SignIn.Request request) {
         if (request.getRole() == Role.DESIGNER) {
-            // 디자이너 로그인 처리
             DesignerEntity designer = designerRepository.findByEmailAndPassword(request.getEmail(), request.getPassword())
                     .orElseThrow(() -> new RuntimeException("Designer not found"));
-            return UserDto.fromDesignerEntity(designer);
-        } else {
-            // 일반 사용자 로그인 처리
+            return LoginDto.fromDesignerEntity(designer);
+        }
+
+        if (request.getRole() == Role.USER) {
             UserEntity user = userRepository.findByEmailAndPassword(request.getEmail(), request.getPassword())
                     .orElseThrow(() -> new RuntimeException("User not found"));
-            return UserDto.fromEntity(user);
+            return LoginDto.fromUserEntity(user);
         }
+
+        if (request.getRole() == Role.MANAGER) {
+            ManagerEntity manager = managerRepository.findByEmailAndPassword(request.getEmail(), request.getPassword())
+                    .orElseThrow(() -> new RuntimeException("Manager not found"));
+            return LoginDto.fromManagerEntity(manager);
+        }
+
+        throw new RuntimeException("Role not found");
     }
+
 }
