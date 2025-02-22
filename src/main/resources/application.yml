@@ -11,3 +11,10 @@ spring:
       dialect: org.hibernate.dialect.MySQL8Dialect
       ddl-auto: update
     show-sql: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
