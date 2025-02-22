@@ -18,7 +18,7 @@ public class DesignerDto {
     private Long designerId;
     private StoreEntity store;
     private List<ProcedureEntity> procedures;
-    private List<AvailableHourEntity> availableHours = new ArrayList<>();
+    private AvailableHourEntity availableHours;
     private List<ReservationEntity> reservations = new ArrayList<>();
     private String username;
     private String email;

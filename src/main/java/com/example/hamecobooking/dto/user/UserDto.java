@@ -26,7 +26,6 @@ public class UserDto {
     private String password;
     private String phoneNumber;
     private Gender gender;
-    private Role role;
     private LocalDateTime createdAt;
 
     // 유저 변환
@@ -38,22 +37,7 @@ public class UserDto {
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .gender(user.getGender())
-                .role(user.getRole())
                 .phoneNumber(user.getPhoneNumber())
-                .build();
-    }
-
-    // 디자이너 변환
-    public static UserDto fromDesignerEntity(DesignerEntity designer) {
-        return UserDto.builder()
-                .userId(designer.getDesignerId())
-                .username(designer.getUsername())
-                .email(designer.getEmail())
-                .password(designer.getPassword())
-                .phoneNumber(designer.getPhoneNumber())
-                .gender(designer.getGender())
-                .role(designer.getRole())
-                .createdAt(designer.getCreatedAt())
                 .build();
     }
 }

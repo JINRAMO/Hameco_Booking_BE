@@ -29,8 +29,8 @@ public class DesignerEntity {
     @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProcedureEntity> procedures = new ArrayList<>();
 
-    @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AvailableHourEntity> availableHours = new ArrayList<>();
+    @OneToOne(mappedBy = "designer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private AvailableHourEntity availableHours;
 
     @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReservationEntity> reservations = new ArrayList<>();
@@ -46,9 +46,6 @@ public class DesignerEntity {
 
     @Column(length = 20)
     private String phoneNumber;
-
-    @Column(nullable = false, length = 255)
-    private Role role;
 
     private Gender gender;
     private int careerYears;

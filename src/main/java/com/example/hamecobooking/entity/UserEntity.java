@@ -43,9 +43,6 @@ public class UserEntity {
     @Column(nullable = false)
     private Gender gender;
 
-    @Column(nullable = false, length = 255)
-    private Role role;
-
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }
