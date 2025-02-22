@@ -1,9 +1,12 @@
 package com.example.hamecobooking.entity;
 
+import com.example.hamecobooking.converter.AvailableHourConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Map;
 
 @Entity
 @Getter
@@ -15,13 +18,10 @@ public class AvailableHourEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "designer_id")
     private DesignerEntity designer;
-
-    @Column(nullable = false)
-    private int hour;
-
-    @Column(nullable = false)
-    private boolean is_available;
+    @Column(columnDefinition = "JSON") // MySQL의 JSON 타입
+    @Convert(converter = AvailableHourConverter.class)
+    private Map<String, int[]> availableHours;
 }

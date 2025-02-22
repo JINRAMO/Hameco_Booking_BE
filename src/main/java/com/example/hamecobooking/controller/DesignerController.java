@@ -1,5 +1,7 @@
 package com.example.hamecobooking.controller;
 
+import com.example.hamecobooking.dto.designer.CreateAvailableHour;
+import com.example.hamecobooking.dto.designer.GetAvailableHour;
 import com.example.hamecobooking.dto.reservation.GetReservation;
 import com.example.hamecobooking.service.DesignerService;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +17,19 @@ public class DesignerController {
         this.designerService = designerService;
     }
 
-    // 디자이너의 가능 시간 수정
+    // 디자이너의 가능 시간 등록
+    @PostMapping("/available")
+    public void createAvailableHours(@RequestHeader("Authorization") String token, @RequestBody CreateAvailableHour.Request request) {
+        token = token.replace("Bearer ", "");
+        designerService.createAvailableHours(token, request);
+    }
+
+    // 디자이너의 가능 시간 삭제
+    @DeleteMapping("/available/{availableHourId}")
+    public void deleteAvailableHours(@RequestHeader("Authorization") String token, @PathVariable Long availableHourId) {
+        token = token.replace("Bearer ", "");
+        designerService.deleteAvailableHours(token, availableHourId);
+    }
 
     // 디자이너의 예약 목록 조회
     @GetMapping
@@ -27,4 +41,9 @@ public class DesignerController {
     }
 
     // 디자이너의 가능 시간 조회
+    @GetMapping("/available")
+    public GetAvailableHour.Response getAvailableHours(@RequestHeader("Authorization") String token) {
+        token = token.replace("Bearer ", "");
+        return designerService.getAvailableHours(token);
+    }
 }
