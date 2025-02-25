@@ -18,13 +18,14 @@ public class LoginController {
         this.signService = signService;
     }
 
+    /*
     // 로그인
-    @PostMapping("/signIn")
+    @PostMapping
     public SignIn.Response signIn(@RequestBody SignIn.Request request) {
         return SignIn.Response.from(signService.signIn(request));
 
     }
-
+    */
     // 회원가입
     @PostMapping("/signUp")
     public SignUp.Response signUp(@RequestBody SignUp.Request request) {

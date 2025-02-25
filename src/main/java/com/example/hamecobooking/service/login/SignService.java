@@ -3,9 +3,6 @@ package com.example.hamecobooking.service.login;
 import com.example.hamecobooking.dto.login.LoginDto;
 import com.example.hamecobooking.dto.login.SignIn;
 import com.example.hamecobooking.dto.login.SignUp;
-import com.example.hamecobooking.dto.user.CreateUser;
-import com.example.hamecobooking.dto.user.GetUser;
-import com.example.hamecobooking.dto.user.UserDto;
 import com.example.hamecobooking.entity.DesignerEntity;
 import com.example.hamecobooking.entity.ManagerEntity;
 import com.example.hamecobooking.entity.UserEntity;
@@ -13,6 +10,7 @@ import com.example.hamecobooking.enums.Role;
 import com.example.hamecobooking.repository.DesignerRepository;
 import com.example.hamecobooking.repository.ManagerRepository;
 import com.example.hamecobooking.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,10 +20,12 @@ public class SignService {
     private final UserRepository userRepository;
     private final DesignerRepository designerRepository;
     private final ManagerRepository managerRepository;
-    public SignService(UserRepository userRepository, DesignerRepository designerRepository, ManagerRepository managerRepository) {
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    public SignService(UserRepository userRepository, DesignerRepository designerRepository, ManagerRepository managerRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
         this.designerRepository = designerRepository;
         this.managerRepository = managerRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     public LoginDto signUp(SignUp.Request request) {
@@ -33,7 +33,7 @@ public class SignService {
             DesignerEntity designer = designerRepository.save(
                     DesignerEntity.builder()
                             .email(request.getEmail())
-                            .password(request.getPassword())
+                            .password(bCryptPasswordEncoder.encode(request.getPassword()))
                             .username(request.getName())
                             .phoneNumber(request.getPhoneNumber())
                             .gender(request.getGender())
@@ -48,7 +48,7 @@ public class SignService {
             UserEntity user = userRepository.save(
                     UserEntity.builder()
                             .email(request.getEmail())
-                            .password(request.getPassword())
+                            .password(bCryptPasswordEncoder.encode(request.getPassword()))
                             .username(request.getName())
                             .phoneNumber(request.getPhoneNumber())
                             .gender(request.getGender())
