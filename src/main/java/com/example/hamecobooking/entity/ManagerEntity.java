@@ -1,5 +1,6 @@
 package com.example.hamecobooking.entity;
 
+import com.example.hamecobooking.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,14 +27,16 @@ public class ManagerEntity {
     @JoinColumn(name = "designer_id", nullable = true)
     private DesignerEntity designer;
 
+    @OneToOne
+    @JoinColumn(name = "login_id", nullable = false)
+    private AuthenticationEntity login;
+
     @Column(nullable = false, length = 255)
     private String username;
 
-    @Column(nullable = false, unique = true, length = 255)
-    private String email;
-
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 255)
-    private String password;
+    private Gender gender;
 
     @Column(length = 20)
     private String phoneNumber;

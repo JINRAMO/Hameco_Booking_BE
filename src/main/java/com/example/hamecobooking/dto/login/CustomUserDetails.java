@@ -1,6 +1,7 @@
 package com.example.hamecobooking.dto.login;
 
-import com.example.hamecobooking.entity.UserEntity;
+import com.example.hamecobooking.entity.AuthenticationEntity;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,26 +9,27 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+@Getter
 public class CustomUserDetails implements UserDetails {
 
-    private final UserEntity userEntity;
-    public CustomUserDetails(UserEntity userEntity) {
-        this.userEntity = userEntity;
+    private final AuthenticationEntity authenticationEntity;
+    public CustomUserDetails(AuthenticationEntity userEntity) {
+        this.authenticationEntity = userEntity;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")); // 기본 권한 설정
+        return Collections.singletonList(new SimpleGrantedAuthority(this.authenticationEntity.getRole().toString())); // 기본 권한 설정
     }
 
     @Override
     public String getPassword() {
-        return userEntity.getPassword();
+        return authenticationEntity.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return userEntity.getEmail();
+        return authenticationEntity.getEmail();
     }
 
     @Override

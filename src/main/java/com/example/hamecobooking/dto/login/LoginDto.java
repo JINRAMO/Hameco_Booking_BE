@@ -19,40 +19,37 @@ public class LoginDto {
     private Long id;
     private String name;
     private String email;
-    private String password;
     private String phoneNumber;
     private Gender gender;
     private LocalDateTime createdAt;
 
-    public static LoginDto fromUserEntity(UserEntity user) {
+    public static LoginDto fromUserEntity(UserEntity user, String email) {
         return LoginDto.builder()
                 .id(user.getUserId())
                 .name(user.getUsername())
-                .email(user.getEmail())
-                .password(user.getPassword())
+                .email(email)
                 .phoneNumber(user.getPhoneNumber())
                 .gender(user.getGender())
                 .createdAt(user.getCreatedAt())
                 .build();
     }
 
-    public static LoginDto fromDesignerEntity(DesignerEntity designer) {
+    public static LoginDto fromDesignerEntity(DesignerEntity designer, String email) {
         return LoginDto.builder()
                 .id(designer.getDesignerId())
                 .name(designer.getUsername())
-                .email(designer.getEmail())
-                .password(designer.getPassword())
+                .email(email)
                 .phoneNumber(designer.getPhoneNumber())
                 .gender(designer.getGender())
                 .build();
     }
 
-    public static LoginDto fromManagerEntity(ManagerEntity manager) {
+    public static LoginDto fromManagerEntity(ManagerEntity manager, String email) {
         return LoginDto.builder()
                 .id(manager.getManagerId())
                 .name(manager.getUsername())
-                .email(manager.getEmail())
-                .password(manager.getPassword())
+                .email(email)
+                .gender(manager.getGender())
                 .phoneNumber(manager.getPhoneNumber())
                 .build();
     }

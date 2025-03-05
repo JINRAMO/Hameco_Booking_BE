@@ -3,12 +3,12 @@ package com.example.hamecobooking.service;
 import com.example.hamecobooking.dto.reservation.CreateReservation;
 import com.example.hamecobooking.dto.reservation.ReservationDto;
 import com.example.hamecobooking.entity.*;
+import com.example.hamecobooking.enums.Role;
 import com.example.hamecobooking.enums.Status;
 import com.example.hamecobooking.repository.DesignerRepository;
 import com.example.hamecobooking.repository.ProcedureRepository;
 import com.example.hamecobooking.repository.ReservationRepository;
 import com.example.hamecobooking.repository.UserRepository;
-import com.example.hamecobooking.service.login.JwtService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,19 +21,16 @@ public class ReservationService {
     private final UserRepository userRepository;
     private final DesignerRepository designerRepository;
     private final ProcedureRepository procedureRepository;
-    private final JwtService jwtService;
-    public ReservationService(ReservationRepository reservationRepository, UserRepository userRepository, DesignerRepository designerRepository, ProcedureRepository procedureRepository, JwtService jwtService) {
+    public ReservationService(ReservationRepository reservationRepository, UserRepository userRepository, DesignerRepository designerRepository, ProcedureRepository procedureRepository) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.designerRepository = designerRepository;
         this.procedureRepository = procedureRepository;
-        this.jwtService = jwtService;
     }
 
-    public ReservationDto createReservation(String token, CreateReservation.Request reservation) {
-        Long Id = jwtService.tokenPacingId(token);
-
-        UserEntity user = userRepository.findById(Id)
+    // 예약 등록
+    public ReservationDto createReservation(AuthenticationEntity authenticationEntity, CreateReservation.Request reservation) {;
+        UserEntity user = userRepository.findByLogin_email(authenticationEntity.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         DesignerEntity designer = designerRepository.findById(reservation.getDesignerId())
                 .orElseThrow(() -> new RuntimeException("Designer not found"));
@@ -60,15 +57,15 @@ public class ReservationService {
         );
     }
 
-    public ReservationDto updateReservationStatus(String token, Long reservationId, Status status) {
-        Long Id = jwtService.tokenPacingId(token);
-        String role = jwtService.getUserRole(token);
-        role = "DESIGNER";
-        ReservationEntity reservation = reservationRepository.findById(reservationId)
+    // 예약 상태 변경
+    public ReservationDto updateReservationStatus(AuthenticationEntity authenticationEntity, Long reservationId, Status status) {
+        Role role = authenticationEntity.getRole();
+
+        ReservationEntity reservation = reservationRepository.findByReservationId(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
 
         if ("DESIGNER".equals(role)) {
-            if (!reservation.getDesigner().getDesignerId().equals(Id)) {
+            if (!reservation.getDesigner().getDesignerId().equals(authenticationEntity.getEmail())) {
                 throw new RuntimeException("You can only update your own reservations.");
             }
             if (status != Status.APPROVED && status != Status.REJECTED) {
@@ -76,7 +73,7 @@ public class ReservationService {
             }
             reservation.setStatus(status);
         } else if ("USER".equals(role)) {
-            if (!reservation.getUser().getUserId().equals(Id)) {
+            if (!reservation.getUser().getUserId().equals(authenticationEntity.getEmail())) {
                 throw new RuntimeException("You can only update your own reservations.");
             }
             if (reservation.getStatus() != Status.APPROVED) {
@@ -91,15 +88,10 @@ public class ReservationService {
             return ReservationDto.fromEntity(reservation);
     }
 
-    public void deleteReservation(String token, Long reservationId) {
-        Long Id = jwtService.tokenPacingId(token);
-
-        if (!userRepository.existsById(Id)) {
-            throw new RuntimeException("User not found");
-        }
-
-        ReservationEntity reservation= reservationRepository.findByReservationIdAndUser_UserId(reservationId,Id)
-                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+    // 예약 삭제
+    public void deleteReservation(AuthenticationEntity authenticationEntity, Long reservationId) {
+        ReservationEntity reservation= reservationRepository.findByReservationIdAndUser_Login_email(reservationId,authenticationEntity.getEmail())
+                .orElseThrow(() -> new RuntimeException("Reservation and User not found"));
 
         reservationRepository.delete(reservation);
     }

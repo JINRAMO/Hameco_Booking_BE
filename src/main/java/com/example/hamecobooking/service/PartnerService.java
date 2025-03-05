@@ -2,35 +2,29 @@ package com.example.hamecobooking.service;
 
 import com.example.hamecobooking.dto.partner.CreatePartner;
 import com.example.hamecobooking.dto.partner.PartnerDto;
+import com.example.hamecobooking.entity.AuthenticationEntity;
 import com.example.hamecobooking.entity.ManagerEntity;
 import com.example.hamecobooking.entity.PartnerEntity;
 import com.example.hamecobooking.repository.ManagerRepository;
 import com.example.hamecobooking.repository.PartnerRepository;
-import com.example.hamecobooking.service.login.JwtService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 import static com.example.hamecobooking.enums.Status.PENDING;
-import static java.rmi.server.LogStream.log;
 
 @Service
 public class PartnerService {
     private final PartnerRepository partnerRepository;
     private final ManagerRepository managerRepository;
-    private final JwtService jwtService;
-    public PartnerService(PartnerRepository partnerRepository, ManagerRepository managerRepository, JwtService jwtService) {
+    public PartnerService(PartnerRepository partnerRepository, ManagerRepository managerRepository) {
         this.partnerRepository = partnerRepository;
         this.managerRepository = managerRepository;
-        this.jwtService = jwtService;
     }
 
-    public PartnerDto createPartner(String token, CreatePartner.Request partner) {
-
-        // 토큰 검증
-        Long Id = jwtService.tokenPacingId(token);
-
-        ManagerEntity manager = managerRepository.findById(Id)
+    // 사업체 등록
+    public PartnerDto createPartner(AuthenticationEntity authenticationEntity, CreatePartner.Request partner) {
+        ManagerEntity manager = managerRepository.findByLogin_email(authenticationEntity.getEmail())
                 .orElseThrow(() -> new RuntimeException("Manager not found"));
 
         return PartnerDto.fromEntity(partnerRepository.save(
@@ -46,16 +40,10 @@ public class PartnerService {
         );
     }
 
-    public void deletePartner(String token, Long partnerId) {
-
-        // 토큰 검증
-        Long Id = jwtService.tokenPacingId(token);
-        if (!managerRepository.existsById(Id)) {
-            log("에러");
-        }
-
-        PartnerEntity partnerEntity = partnerRepository.findById(partnerId)
-               .orElseThrow(() -> new RuntimeException("Partner not found"));
+    // 사업체 삭제
+    public void deletePartner(AuthenticationEntity authenticationEntity, Long partnerId) {
+        PartnerEntity partnerEntity = partnerRepository.findByPartnerIdAndManager_Login_email(partnerId,authenticationEntity.getEmail())
+               .orElseThrow(() -> new RuntimeException("Partner and Manage not found"));
 
         partnerRepository.delete(partnerEntity);
     }

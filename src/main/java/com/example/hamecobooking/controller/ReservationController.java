@@ -1,8 +1,11 @@
 package com.example.hamecobooking.controller;
 
+import com.example.hamecobooking.dto.login.CustomUserDetails;
 import com.example.hamecobooking.dto.reservation.CreateReservation;
 import com.example.hamecobooking.enums.Status;
 import com.example.hamecobooking.service.ReservationService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,23 +17,23 @@ public class ReservationController {
     }
 
     // 예약 등록
+    @PreAuthorize("hasAuthority('USER')")
     @PostMapping
-    public CreateReservation.Response createReservation(@RequestHeader("Authorization") String token, @RequestBody CreateReservation.Request request) {
-        token = token.replace("Bearer ", "");
-        return CreateReservation.Response.from(reservationService.createReservation(token,request));
+    public CreateReservation.Response createReservation(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody CreateReservation.Request request) {
+        return CreateReservation.Response.from(reservationService.createReservation(userDetails.getAuthenticationEntity(),request));
     }
 
     // 예약 상태 변경
-    @PatchMapping("/{reservation_id}")
-    public CreateReservation.Response updateReservationStatus(@RequestHeader("Authorization") String token, @PathVariable("reservation_id") Long reservationId, @RequestParam Status status) {
-        token = token.replace("Bearer ", "");
-        return CreateReservation.Response.from(reservationService.updateReservationStatus(token, reservationId, status));
+    @PreAuthorize("hasAnyAuthority('USER', 'DESIGNER')")
+    @PatchMapping("/{reservationId}")
+    public CreateReservation.Response updateReservationStatus(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long reservationId, @RequestParam Status status) {
+        return CreateReservation.Response.from(reservationService.updateReservationStatus(userDetails.getAuthenticationEntity(), reservationId, status));
     }
 
     // 예약 삭제
-    @DeleteMapping("/{reservation_id}")
-    public void deleteReservation(@RequestHeader("Authorization") String token, @PathVariable("reservation_id") Long reservationId) {
-        token = token.replace("Bearer ", "");
-        reservationService.deleteReservation(token, reservationId);
+    @PreAuthorize("hasAuthority('USER')")
+    @DeleteMapping("/{reservationId}")
+    public void deleteReservation(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long reservationId) {
+        reservationService.deleteReservation(userDetails.getAuthenticationEntity(), reservationId);
     }
 }
