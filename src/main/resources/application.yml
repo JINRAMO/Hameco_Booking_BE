@@ -11,6 +11,8 @@ spring:
       dialect: org.hibernate.dialect.MySQL8Dialect
       ddl-auto: update
     show-sql: true
+  jwt:
+    secret: ${JWT_SECRET}
 
 springdoc:
   swagger-ui:
@@ -18,3 +20,9 @@ springdoc:
   api-docs:
     enabled: true
     path: /v3/api-docs
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

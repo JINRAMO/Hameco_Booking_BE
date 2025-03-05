@@ -5,7 +5,6 @@ import com.example.hamecobooking.dto.procedure.ProcedureDto;
 import com.example.hamecobooking.entity.*;
 import com.example.hamecobooking.repository.DesignerRepository;
 import com.example.hamecobooking.repository.ProcedureRepository;
-import com.example.hamecobooking.service.login.JwtService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,19 +13,14 @@ import java.util.List;
 public class ProcedureService {
     private final ProcedureRepository procedureRepository;
     private final DesignerRepository designerRepository;
-    private final JwtService jwtService;
-    public ProcedureService(ProcedureRepository procedureRepository, DesignerRepository designerRepository, JwtService jwtService) {
+    public ProcedureService(ProcedureRepository procedureRepository, DesignerRepository designerRepository) {
         this.procedureRepository = procedureRepository;
         this.designerRepository = designerRepository;
-        this.jwtService = jwtService;
     }
 
-    public ProcedureDto createProcedure(String token, CreateProcedure.Request procedure) {
-
-        // 토큰 검증 필요
-        Long Id = jwtService.tokenPacingId(token);
-
-        DesignerEntity designer = designerRepository.findById(Id)
+    // 시술 등록
+    public ProcedureDto createProcedure(AuthenticationEntity authenticationEntity, CreateProcedure.Request procedure) {
+        DesignerEntity designer = designerRepository.findByLogin_Email(authenticationEntity.getEmail())
                 .orElseThrow(() -> new RuntimeException("Designer not found"));
 
         return ProcedureDto.fromEntity(procedureRepository.save(
@@ -40,23 +34,17 @@ public class ProcedureService {
         );
     }
 
-    public List<ProcedureDto> getProcedures(String token) {
-
-        // 토큰 검증 필요
-        Long Id = jwtService.tokenPacingId(token);
-
-        return procedureRepository.findByDesigner_DesignerId(Id).stream()
+    // 시술 조회
+    public List<ProcedureDto> getProcedures(Long designerId) {
+        return procedureRepository.findByDesigner_DesignerId(designerId).stream()
                 .map(ProcedureDto::fromEntity)
                 .toList();
     }
 
-    public void deleteProcedure(String token, Long procedureId) {
-
-        // 토큰 검증 필요
-        Long Id = jwtService.tokenPacingId(token);
-
-        ProcedureEntity procedure = procedureRepository.findById(procedureId)
-                .orElseThrow(() -> new RuntimeException("Procedure not found"));
+    // 시술 삭제
+    public void deleteProcedure(AuthenticationEntity authenticationEntity, Long procedureId) {
+        ProcedureEntity procedure = procedureRepository.findByProcedureIdAndDesigner_Login_email(procedureId,authenticationEntity.getEmail())
+                .orElseThrow(() -> new RuntimeException("Procedure and Designer not found"));
 
         procedureRepository.delete(procedure);
     }

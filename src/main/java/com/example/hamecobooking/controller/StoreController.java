@@ -1,11 +1,15 @@
 package com.example.hamecobooking.controller;
 
+import com.example.hamecobooking.dto.login.CustomUserDetails;
+import com.example.hamecobooking.dto.review.CreateReview;
 import com.example.hamecobooking.dto.review.GetReview;
 import com.example.hamecobooking.dto.store.CreateStore;
 import com.example.hamecobooking.dto.store.GetStore;
 import com.example.hamecobooking.dto.store.StoreDto;
 import com.example.hamecobooking.dto.store.UpdateStore;
 import com.example.hamecobooking.service.StoreService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,24 +24,24 @@ public class StoreController {
     }
 
     // 매장 등록
+    @PreAuthorize("hasAuthority('MANAGER')")
     @PostMapping
-    public CreateStore.Response createStore(@RequestHeader("Authorization") String token, @RequestBody CreateStore.Request request) {
-        token = token.replace("Bearer ", "");
-        return CreateStore.Response.from(storeService.createStore(token,request));
+    public CreateStore.Response createStore(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody CreateStore.Request request) {
+        return CreateStore.Response.from(storeService.createStore(userDetails.getAuthenticationEntity(),request));
     }
 
     // 매장 수정
+    @PreAuthorize("hasAuthority('MANAGER')")
     @PutMapping
-    public UpdateStore.Response updateStore(@RequestHeader("Authorization") String token, @RequestBody UpdateStore.Request request) {
-        token = token.replace("Bearer ", "");
-        return UpdateStore.Response.from(storeService.updateStore(token,request));
+    public UpdateStore.Response updateStore(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UpdateStore.Request request) {
+        return UpdateStore.Response.from(storeService.updateStore(userDetails.getAuthenticationEntity(),request));
     }
 
     // 매장 삭제
-    @DeleteMapping("/{store_id}")
-    public void deleteStore(@RequestHeader("Authorization") String token, @PathVariable("store_id") Long storeId) {
-        token = token.replace("Bearer ", "");
-        storeService.deleteStore(token, storeId);
+    @PreAuthorize("hasAuthority('MANAGER')")
+    @DeleteMapping("/{storeId}")
+    public void deleteStore(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long storeId) {
+        storeService.deleteStore(userDetails.getAuthenticationEntity(),storeId);
     }
 
     // 전체 매장 목록 조회

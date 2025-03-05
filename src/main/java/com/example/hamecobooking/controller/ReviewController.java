@@ -1,10 +1,11 @@
 package com.example.hamecobooking.controller;
 
+import com.example.hamecobooking.dto.login.CustomUserDetails;
 import com.example.hamecobooking.dto.review.CreateReview;
 import com.example.hamecobooking.dto.review.UpdateReview;
-import com.example.hamecobooking.dto.store.CreateStore;
-import com.example.hamecobooking.dto.store.UpdateStore;
 import com.example.hamecobooking.service.ReviewService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,23 +17,23 @@ public class ReviewController {
     }
 
     // 리뷰 등록
+    @PreAuthorize("hasAuthority('USER')")
     @PostMapping
-    public CreateReview.Response createReview(@RequestHeader("Authorization") String token, @RequestBody CreateReview.Request request) {
-        token = token.replace("Bearer ", "");
-        return CreateReview.Response.from(reviewService.createReview(token,request));
+    public CreateReview.Response createReview(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody CreateReview.Request request) {
+        return CreateReview.Response.from(reviewService.createReview(userDetails.getAuthenticationEntity(),request));
     }
 
     // 리뷰 수정
+    @PreAuthorize("hasAuthority('USER')")
     @PutMapping
-    public UpdateReview.Response updateStore(@RequestHeader("Authorization") String token, @RequestBody UpdateReview.Request request) {
-        token = token.replace("Bearer ", "");
-        return UpdateReview.Response.from(reviewService.updateReview(token,request));
+    public UpdateReview.Response updateStore(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UpdateReview.Request request) {
+        return UpdateReview.Response.from(reviewService.updateReview(userDetails.getAuthenticationEntity(),request));
     }
 
     // 리뷰 삭제
-    @DeleteMapping("/{store_id}")
-    public void deleteReview(@RequestHeader("Authorization") String token, @PathVariable("store_id") Long storeId) {
-        token = token.replace("Bearer ", "");
-        reviewService.deleteReview(token, storeId);
+    @PreAuthorize("hasAuthority('USER')")
+    @DeleteMapping("/{storeId}")
+    public void deleteReview(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long storeId) {
+        reviewService.deleteReview(userDetails.getAuthenticationEntity(), storeId);
     }
 }

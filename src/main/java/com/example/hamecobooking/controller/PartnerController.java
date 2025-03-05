@@ -1,7 +1,11 @@
 package com.example.hamecobooking.controller;
 
+import com.example.hamecobooking.dto.designer.CreateAvailableHour;
+import com.example.hamecobooking.dto.login.CustomUserDetails;
 import com.example.hamecobooking.dto.partner.CreatePartner;
 import com.example.hamecobooking.service.PartnerService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,16 +17,16 @@ public class PartnerController {
     }
 
     // 사업체 등록
+    @PreAuthorize("hasAuthority('MANAGER')")
     @PostMapping
-    public CreatePartner.Response createPartner(@RequestHeader("Authorization") String token, @RequestBody CreatePartner.Request request) {
-        token = token.replace("Bearer ", "");
-        return CreatePartner.Response.from(partnerService.createPartner(token,request));
+    public CreatePartner.Response createPartner(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody CreatePartner.Request request) {
+        return CreatePartner.Response.from(partnerService.createPartner(userDetails.getAuthenticationEntity(),request));
     }
 
     // 사업체 삭제
-    @DeleteMapping("/{partner_id}")
-    public void deletePartner(@RequestHeader("Authorization") String token, @PathVariable("partner_id") Long partnerId) {
-        token = token.replace("Bearer ", "");
-        partnerService.deletePartner(token, partnerId);
+    @PreAuthorize("hasAuthority('MANAGER')")
+    @DeleteMapping("/{partnerId}")
+    public void deletePartner(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long partnerId) {
+        partnerService.deletePartner(userDetails.getAuthenticationEntity(), partnerId);
     }
 }

@@ -22,13 +22,12 @@ public class DesignerDto {
     private List<ReservationEntity> reservations = new ArrayList<>();
     private String username;
     private String email;
-    private String password;
     private String phoneNumber;
     private int careerYears;
     private StoreAcceptStatus storeAcceptStatus;
     private LocalDateTime createdAt;
 
-    public static DesignerDto fromEntity(DesignerEntity designer) {
+    public static DesignerDto fromEntity(DesignerEntity designer, String email) {
         return DesignerDto.builder()
                 .designerId(designer.getDesignerId())
                 .store(designer.getStore())
@@ -36,8 +35,7 @@ public class DesignerDto {
                 .availableHours(designer.getAvailableHours())
                 .reservations(designer.getReservations())
                 .username(designer.getUsername())
-                .email(designer.getEmail())
-                .password(designer.getPassword())
+                .email(email)
                 .phoneNumber(designer.getPhoneNumber())
                 .careerYears(designer.getCareerYears())
                 .storeAcceptStatus(designer.getStoreAcceptStatus())

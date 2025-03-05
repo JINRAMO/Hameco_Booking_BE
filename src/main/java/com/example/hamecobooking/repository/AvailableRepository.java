@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface AvailableRepository extends JpaRepository<AvailableHourEntity, Long> {
+    Optional<AvailableHourEntity>findByIdAndDesigner_Login_email(Long availableHourId, String email);
 //    Optional<AvailableHourEntity> findByDesignerId(Long designerId);
 }

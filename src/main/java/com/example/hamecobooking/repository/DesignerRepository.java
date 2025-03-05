@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface DesignerRepository extends JpaRepository<DesignerEntity,Long> {
     boolean existsById(Long id);
-    Optional<DesignerEntity> findByEmailAndPassword(String email, String password);
+    Optional<DesignerEntity> findByLogin_Email(String email);
 }

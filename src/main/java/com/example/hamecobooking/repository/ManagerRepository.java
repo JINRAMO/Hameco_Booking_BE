@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface ManagerRepository extends JpaRepository<ManagerEntity, Long> {
-
     boolean existsById(Long userId);
-    Optional<ManagerEntity> findByEmailAndPassword(String email, String password);
+    Optional<ManagerEntity> findByLogin_email(String email);
+//    Optional<ManagerEntity> findByEmailAndPassword(String email, String password);
 }
